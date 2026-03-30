@@ -40,9 +40,20 @@ const StationView = () => {
         start: startPoint,
         destination: endPoint
       });
-      setNavigationPath(res.data.path);
+      if (res.data.path) {
+        setNavigationPath(res.data.path);
+      } else if (res.data.error) {
+        alert(`Navigation error: ${res.data.error}`);
+        setNavigationPath([]);
+      }
     } catch (err) {
-      alert("Path not found or backend is unreachable. Make sure uvicorn is running!");
+      // Backend returns {"error":"..."} for 404/400 – read it if available
+      const serverMsg = err?.response?.data?.error;
+      if (serverMsg) {
+        alert(`Navigation error: ${serverMsg}`);
+      } else {
+        alert("Backend is unreachable. Make sure uvicorn is running on port 8000!");
+      }
       setNavigationPath([]);
     } finally {
       setIsFindingPath(false);

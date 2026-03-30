@@ -1,0 +1,126 @@
+import sys
+import ast
+
+with open(r"c:\Users\Praveen\OneDrive\Desktop\navisphere-railway-station-resource-tracker-main\backend\main.py", "r", encoding='utf-8') as f:
+    orig = f.read()
+
+start_idx = orig.find('STATION_GRAPHS = {')
+end_idx = orig.find('def get_shortest_path')
+
+dict_str = orig[start_idx:end_idx].strip()
+local_env = {}
+exec(dict_str, {}, local_env)
+STATION_GRAPHS = local_env['STATION_GRAPHS']
+
+for station_name, data in STATION_GRAPHS.items():
+    nodes = data['nodes']
+    edges = data['edges']
+    
+    # build adjacency list
+    adj = {node['name']: [] for node in nodes}
+    for edge in edges:
+        if edge['start'] in adj and edge['end'] in adj:
+            adj[edge['start']].append(edge['end'])
+            adj[edge['end']].append(edge['start'])
+        else:
+            print(f"WARNING: {station_name} block edge references unknown nodes: {edge}")
+            
+    visited = set()
+    components = []
+    
+    for node in nodes:
+        name = node['name']
+        if name not in visited:
+            comp = []
+            queue = [name]
+            visited.add(name)
+            while queue:
+                curr = queue.pop(0)
+                comp.append(curr)
+                if curr in adj:
+                    for neighbor in adj[curr]:
+                        if neighbor not in visited:
+                            visited.add(neighbor)
+                            queue.append(neighbor)
+            components.append(comp)
+            
+    print(f"Station: {station_name}")
+    print(f"Number of components: {len(components)}")
+    if len(components) > 1:
+        for i, comp in enumerate(components):
+            print(f"  Component {i+1} ({len(comp)} nodes): {comp}")
+    print("-" * 50)
+import re, collections
+
+with open(r"c:\Users\Praveen\OneDrive\Desktop\navisphere-railway-station-resource-tracker-main\frontend\src\data\stations.js", encoding='utf-8') as f:
+    content = f.read()
+
+# use regex to extract all name: "..." entries per station block
+station_pattern = re.compile(r'(\w+):\s*\{[^}]*name:\s*"Secunderabad Junction"|(\w+):\s*\{[^}]*name:\s*"Lingampally"', re.DOTALL)
+
+# Find all { name: "..." } objects
+names_pattern = re.compile(r'\{\s*name:\s*"([^"]+)"')
+
+# Split by top-level station keys and check each
+station_blocks = re.split(r'\n  (\w+):\s*\{', content)
+
+print("FRONTEND DUPLICATE NODE CHECKS")
+print("=" * 50)
+# Extract each station's block
+station_sections = re.findall(r'(secunderabad|lingampally|medchal|gadwal):[^}]+?id:.*?facilities:\s*\[(.*?)\]\s*\}', content, re.DOTALL)
+
+if not station_sections:
+    # fallback: just check all names globally
+    all_names = names_pattern.findall(content)
+    counter = collections.Counter(all_names)
+    dupes = {n: c for n,c in counter.items() if c > 1}
+    print("All names (global):")
+    for n,c in sorted(dupes.items()):
+        print(f"  ({c}x) '{n}'")
+else:
+    for station_id, facilities_block in station_sections:
+        names = names_pattern.findall(facilities_block)
+        dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+        print(f"\n{station_id}:")
+        if dupes:
+            for name, count in dupes.items():
+                print(f"  DUPLICATE ({count}x): '{name}'")
+        else:
+            print("  No duplicates")
+import sys
+import ast
+
+with open(r"c:\Users\Praveen\OneDrive\Desktop\navisphere-railway-station-resource-tracker-main\backend\main.py", "r", encoding='utf-8') as f:
+    orig = f.read()
+
+start_idx = orig.find('STATION_GRAPHS = {')
+end_idx = orig.find('def get_shortest_path')
+
+dict_str = orig[start_idx:end_idx].strip()
+local_env = {}
+exec(dict_str, {}, local_env)
+STATION_GRAPHS = local_env['STATION_GRAPHS']
+
+for station_name, data in STATION_GRAPHS.items():
+    nodes = data['nodes']
+    edges = data['edges']
+    adj = {n['name']: [] for n in nodes}
+    for e in edges:
+        if e['start'] in adj and e['end'] in adj:
+            adj[e['start']].append(e['end'])
+            adj[e['end']].append(e['start'])
+            
+    degree_0 = []
+    degree_1 = []
+    for n, neighbors in adj.items():
+        if len(neighbors) == 0:
+            degree_0.append(n)
+        elif len(neighbors) == 1:
+            degree_1.append(n)
+            
+    print(f"Station: {station_name}")
+    if degree_0:
+        print(f"  Isolated Nodes (Degree 0): {degree_0}")
+    if degree_1:
+         print(f"  Dead Ends (Degree 1): {degree_1}")
+    print("-" * 50)
