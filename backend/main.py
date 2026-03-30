@@ -29,6 +29,9 @@ app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")
 @app.get("/")
 def serve_frontend():
     return FileResponse(os.path.join(frontend_dist, "index.html"))
+@app.get("/{full_path:path}")
+def serve_react_routes(full_path: str):
+    return FileResponse(os.path.join(frontend_dist, "index.html"))
 
 class NavigationRequest(BaseModel):
     station_name: str
@@ -537,3 +540,4 @@ async def navigate(req: NavigationRequest):
         return JSONResponse(status_code=500, content={"error": "Pathfinding internal error: destination overshoot detected"})
         
     return {"path": path}
+    
