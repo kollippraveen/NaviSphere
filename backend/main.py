@@ -18,6 +18,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+frontend_dist = os.path.join(os.path.dirname(__file__), "../frontend/dist")
+
+app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse(os.path.join(frontend_dist, "index.html"))
 
 class NavigationRequest(BaseModel):
     station_name: str
