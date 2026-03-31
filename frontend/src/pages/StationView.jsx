@@ -35,7 +35,7 @@ const StationView = () => {
 
     setIsFindingPath(true);
     try {
-      const res = await axios.post('https://www.navispherre.in/navigate', {
+      const res = await axios.post('https://navisphere.onrender.com/navigate', {
         station_name: station.name,
         start: startPoint,
         destination: endPoint
