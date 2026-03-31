@@ -24,7 +24,7 @@ import os
 
 frontend_dist = os.path.join(os.path.dirname(__file__), "../frontend/dist")
 
-app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+#app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
 
 @app.get("/")
 def serve_frontend():
