@@ -95,7 +95,7 @@ export const stations = {
   medchal: {
     id: "medchal",
     name: "Medchal Station",
-    mapUrl: "/Medchal.png",
+    mapUrl: "/medchal.png",
     facilities: [
       { name: "Top Left Corner", x: 20, y: 10, category: "Utility" },
       { name: "Top Stairs", x: 58, y: 10, category: "Stairs" },
